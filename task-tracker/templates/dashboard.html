@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Görev Paneli</title>
+</head>
+<body>
+  <h2>Merhaba, {{ user }}</h2>
+  <h3>Bugünkü Görevler</h3>
+  <ul>
+    {% for task in tasks %}
+    <li>
+        {{ task.gorev }} - 
+        {% if task.durum == "tamamlandı" %}
+            ✅ Tamamlandı
+        {% else %}
+        <form action="{{ url_for('task.complete', index=loop.index0) }}" method="post" style="display:inline;">
+          <button type="submit">Tamamla</button>
+      </form>
+      
+        {% endif %}
+    </li>
+{% endfor %}
+  </ul>
+  <form method="POST" action="/tasks/add">
+    <input type="text" name="new_task" placeholder="Yeni görev gir" required>
+    <button type="submit">Ekle</button>
+  </form>
+
+  <form action="/auto/newday" method="get" style="margin-top:20px;">
+    <button type="submit">Yeni Güne Geç</button>
+  </form>
+
+  
+  <br>
+  <form method="POST" action="/auth/logout">
+    <button type="submit">Çıkış Yap</button>
+  </form>
+</body>
+</html>
