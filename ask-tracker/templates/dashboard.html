@@ -1,0 +1,95 @@
+<!-- Hatırlatma Bildirimi Modal -->
+<div class="modal fade" id="reminderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-bell"></i> Görev Hatırlatması
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reminderContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" onclick="snoozeReminders()">
+                    <i class="fas fa-clock"></i> 3 dk Sonra Tekrar Hatırlat
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bildirim Sesi -->
+<audio id="notificationSound">
+    <source src="{{ url_for('static', filename='notification.mp3') }}" type="audio/mpeg">
+</audio>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentReminders = [];
+    let notificationSound = document.getElementById('notificationSound');
+    let snoozeTimeout;
+
+    // Hatırlatma kontrolü
+    function checkReminders() {
+        fetch("{{ url_for('task_bp.check_reminders') }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.reminders && data.reminders.length > 0) {
+                    currentReminders = data.reminders;
+                    const content = currentReminders.map(task => 
+                        `<div class="alert alert-warning">
+                            <strong>${task.Görev}</strong><br>
+                            <small>Hatırlatma Saati: ${task["Hatırlatma Saati"]}</small>
+                        </div>`
+                    ).join('');
+                    
+                    document.getElementById('reminderContent').innerHTML = content;
+                    
+                    // Ses çal
+                    notificationSound.play();
+                    
+                    // Modal'ı göster
+                    new bootstrap.Modal(document.getElementById('reminderModal')).show();
+                }
+            });
+    }
+
+    // 3 dakika sonra tekrar hatırlatma
+    function snoozeReminders() {
+        // Modal'ı kapat
+        bootstrap.Modal.getInstance(document.getElementById('reminderModal')).hide();
+        
+        // Varolan timeout'u temizle
+        if (snoozeTimeout) {
+            clearTimeout(snoozeTimeout);
+        }
+        
+        // 3 dakika sonra tekrar hatırlat
+        snoozeTimeout = setTimeout(() => {
+            if (currentReminders.length > 0) {
+                document.getElementById('reminderContent').innerHTML = currentReminders.map(task => 
+                    `<div class="alert alert-warning">
+                        <strong>${task.Görev}</strong><br>
+                        <small>Hatırlatma Saati: ${task["Hatırlatma Saati"]}</small>
+                        <span class="badge bg-info">Tekrar Hatırlatma</span>
+                    </div>`
+                ).join('');
+                
+                notificationSound.play();
+                new bootstrap.Modal(document.getElementById('reminderModal')).show();
+            }
+        }, 3 * 60 * 1000); // 3 dakika
+    }
+
+    // Her 5 dakikada bir hatırlatmaları kontrol et
+    setInterval(checkReminders, 5 * 60 * 1000);
+    
+    // Sayfa yüklendiğinde de kontrol et
+    document.addEventListener('DOMContentLoaded', checkReminders);
+</script>
+{% endblock %} 

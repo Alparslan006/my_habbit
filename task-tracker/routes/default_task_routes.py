@@ -3,7 +3,7 @@ from controllers.default_task_controller import (
     list_default_tasks, add_default_task, delete_default_task
 )
 
-default_tasks_bp = Blueprint("default_tasks", __name__)
+default_tasks_bp = Blueprint("default_tasks_bp", __name__)
 
 @default_tasks_bp.route("/default-tasks", methods=["GET"])
 def view():

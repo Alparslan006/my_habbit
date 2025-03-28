@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ user }} - Görev Geçmişi</h4>
+                    <a href="{{ url_for('task_bp.dashboard') }}" class="btn btn-light btn-sm">Bugünkü Görevler</a>
+                </div>
+                <div class="card-body">
+                    <!-- Tarih Filtreleme -->
+                    <form action="{{ url_for('task_bp.history') }}" method="GET" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <input type="date" name="start_date" class="form-control" value="{{ start_date if start_date }}" required>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="date" name="end_date" class="form-control" value="{{ end_date if end_date }}" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Görev Geçmişi Accordion -->
+                    <div class="accordion" id="taskAccordion">
+                        {% if tasks %}
+                            {% for date, daily_tasks in tasks.items() %}
+                                <div class="accordion-item mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#collapse{{ loop.index }}"
+                                                aria-expanded="false">
+                                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                                <strong>{{ date }}</strong>
+                                                <span class="badge bg-primary rounded-pill ms-2">
+                                                    {{ daily_tasks|length }} görev
+                                                    {% set completed = daily_tasks|selectattr('Durum', 'equalto', 'tamamlandı')|list|length %}
+                                                    ({{ completed }} tamamlandı)
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+                                         data-bs-parent="#taskAccordion">
+                                        <div class="accordion-body">
+                                            <div class="list-group list-group-flush">
+                                                {% for task in daily_tasks %}
+                                                    <div class="list-group-item d-flex align-items-center border-0 px-0">
+                                                        {% if task.Durum == "tamamlandı" %}
+                                                            <span class="task-icon completed">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                            <span class="text-decoration-line-through">{{ task.Görev }}</span>
+                                                            <small class="text-muted ms-2">({{ task["Tamamlanma Zamanı"] }})</small>
+                                                        {% else %}
+                                                            <span class="task-icon pending">
+                                                                <i class="fas fa-times"></i>
+                                                            </span>
+                                                            <span>{{ task.Görev }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted">
+                                <p>Seçilen tarih aralığında görev bulunamadı.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
