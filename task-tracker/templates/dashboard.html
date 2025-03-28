@@ -1,39 +1,122 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Görev Paneli</title>
+    <title>Görev Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .task-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .task-item.completed {
+            background-color: #e8f5e9;
+        }
+        .btn-custom {
+            margin: 0.5rem;
+        }
+        .admin-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+    </style>
 </head>
 <body>
-  <h2>Merhaba, {{ user }}</h2>
-  <h3>Bugünkü Görevler</h3>
-  <ul>
-    {% for task in tasks %}
-    <li>
-        {{ task.gorev }} - 
-        {% if task.durum == "tamamlandı" %}
-            ✅ Tamamlandı
-        {% else %}
-        <form action="{{ url_for('task.complete', index=loop.index0) }}" method="post" style="display:inline;">
-          <button type="submit">Tamamla</button>
-      </form>
-      
-        {% endif %}
-    </li>
-{% endfor %}
-  </ul>
-  <form method="POST" action="/tasks/add">
-    <input type="text" name="new_task" placeholder="Yeni görev gir" required>
-    <button type="submit">Ekle</button>
-  </form>
+    <div class="dashboard-container">
+        <div class="text-center mb-4">
+            <h2 class="text-primary">
+                Merhaba, {{ user }}
+                {% if role == 'admin' %}
+                    <span class="admin-badge">Admin</span>
+                {% endif %}
+            </h2>
+            <p class="text-muted">Bugünkü görevlerinizi buradan yönetebilirsiniz</p>
+        </div>
 
-  <form action="/auto/newday" method="get" style="margin-top:20px;">
-    <button type="submit">Yeni Güne Geç</button>
-  </form>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Bugünkü Görevler</h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for task in tasks %}
+                    <div class="task-item {% if task.durum == 'tamamlandı' %}completed{% endif %}">
+                        <div>
+                            <i class="fas fa-circle-dot me-2"></i>
+                            {{ task.gorev }}
+                            {% if task.durum == "tamamlandı" %}
+                                <span class="badge bg-success ms-2">✅ Tamamlandı</span>
+                            {% endif %}
+                        </div>
+                        {% if task.durum != "tamamlandı" %}
+                        <form action="{{ url_for('task_bp.complete', index=loop.index0) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-check me-1"></i>Tamamla
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-  
-  <br>
-  <form method="POST" action="/auth/logout">
-    <button type="submit">Çıkış Yap</button>
-  </form>
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-plus-circle me-2"></i>Yeni Görev Ekle</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('task_bp.add') }}" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="new_task" placeholder="Yeni görev gir" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3">
+            {% if role == 'admin' %}
+            <a href="{{ url_for('admin_bp.admin_panel') }}" class="btn btn-danger btn-custom">
+                <i class="fas fa-cogs me-2"></i>Admin Paneli
+            </a>
+            {% endif %}
+            <a href="{{ url_for('auto_task_bp.new_day') }}" class="btn btn-warning btn-custom">
+                <i class="fas fa-calendar-day me-2"></i>Yeni Güne Geç
+            </a>
+            <form method="POST" action="{{ url_for('auth_bp.logout_route') }}" class="d-inline">
+                <button type="submit" class="btn btn-secondary btn-custom">
+                    <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

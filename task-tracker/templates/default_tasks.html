@@ -1,33 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sabit Görevler</title>
+    <title>Sabit Görevler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .tasks-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .task-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 <body>
-  <h2>Sabit Görevler</h2>
-  {% if tasks %}
-    <ul>
-      {% for task in tasks %}
-        <li>
-          {{ task }} <!-- Eğer task bir nesne ise, task.name veya task.description kullanabilirsiniz -->
-          <form action="/default-tasks/delete" method="POST" style="display:inline;">
-            <input type="hidden" name="delete_task" value="{{ task }}"> <!-- Görev adı buraya gelecek -->
-            <button type="submit">Sil</button>
-          </form>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Henüz hiç sabit görev yok!</p>
-  {% endif %}
+    <div class="tasks-container">
+        <div class="text-center mb-4">
+            <h2 class="text-primary">Sabit Görevler</h2>
+            <p class="text-muted">Her gün tekrarlanan görevlerinizi buradan yönetebilirsiniz</p>
+        </div>
 
-  <h3>Yeni Görev Ekle</h3>
-  <form action="/default-tasks/add" method="POST">
-    <input type="text" name="new_task" placeholder="Yeni görev gir" required>
-    <button type="submit">Ekle</button>
-  </form>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-list me-2"></i>Mevcut Görevler</h3>
+            </div>
+            <div class="card-body">
+                {% if tasks %}
+                    <div class="list-group">
+                        {% for task in tasks %}
+                            <div class="task-item">
+                                <div>
+                                    <i class="fas fa-circle-dot me-2"></i>
+                                    {{ task }}
+                                </div>
+                                <form action="{{ url_for('default_tasks.delete') }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="delete_task" value="{{ task }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash me-1"></i>Sil
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Henüz hiç sabit görev yok!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
 
-  <br>
-  <a href="{{ url_for('admin_dashboard') }}">⏪ Admin Paneline Dön</a>
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-plus-circle me-2"></i>Yeni Görev Ekle</h3>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('default_tasks.add') }}" method="POST" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="new_task" placeholder="Yeni görev gir" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-plus me-2"></i>Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{{ url_for('admin.admin_panel') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Admin Paneline Dön
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

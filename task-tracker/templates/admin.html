@@ -1,34 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Paneli</title>
+    <title>Admin Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .admin-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .module-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .btn-custom {
+            margin: 0.5rem;
+        }
+    </style>
 </head>
 <body>
-  <h2>Admin Paneline Hoş Geldin {{ user }}</h2>
-  
-  <h3>Modül Yönetimi</h3>
-  <form method="POST" action="{{ url_for('admin.toggle_modules') }}">
-    {% for mod in modules %}
-      <label>
-        <input type="checkbox" name="moduller" value="{{ mod['name'] }}" {% if mod['active'] == 'active' %}checked{% endif %}>
-        {{ mod['name'] }}
-      </label><br>
-    {% endfor %}
-    <br>
-    <button type="submit">Kaydet</button>
-  </form>
+    <div class="admin-container">
+        <div class="text-center mb-4">
+            <h2 class="text-primary">Admin Paneline Hoş Geldin {{ user }}</h2>
+            <p class="text-muted">Kullanıcı modül izinlerini buradan yönetebilirsiniz</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-cogs me-2"></i>Modül Yönetimi</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.toggle_module') }}">
+                    <div class="row">
+                        {% for mod in modules %}
+                        <div class="col-md-6 mb-3">
+                            <div class="module-card">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="moduller" 
+                                           value="{{ mod['id'] }}" id="mod_{{ loop.index }}"
+                                           {% if mod['active'] %}checked{% endif %}>
+                                    <label class="form-check-label" for="mod_{{ loop.index }}">
+                                        {{ mod['name'] }}
+                                        <small class="text-muted d-block">ID: {{ mod['id'] }}</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-  <br>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('default_tasks.view') }}" class="btn btn-info btn-custom">
+                <i class="fas fa-tasks me-2"></i>Sabit Görevleri Yönet
+            </a>
+            <form method="POST" action="{{ url_for('auth.logout_route') }}" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-custom">
+                    <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                </button>
+            </form>
+        </div>
+    </div>
 
-  <!-- Sabit görevleri yönet butonu -->
-  <form action="{{ url_for('default_tasks.view') }}" method="get">
-    <button type="submit">Sabit Görevleri Yönet</button>
-  </form>
-
-  <br>
-  <!-- Çıkış yap butonu -->
-  <form method="POST" action="{{ url_for('auth.logout') }}">
-    <button type="submit">Çıkış Yap</button>
-  </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
